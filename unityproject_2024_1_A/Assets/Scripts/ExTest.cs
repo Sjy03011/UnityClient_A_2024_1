@@ -51,6 +51,7 @@ public class Stats
     public int dexterity;
     public int consitiution;
     public int wisdom;
+    public int lntelligence;
     public int charisma;
 
 
