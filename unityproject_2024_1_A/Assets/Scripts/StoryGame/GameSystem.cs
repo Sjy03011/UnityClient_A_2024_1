@@ -1,173 +1,141 @@
-ï»¿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;          //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-using System.Text;          //ï¿½Ø½ï¿½Æ® ï¿½ï¿½ï¿½
-using UnityEngine.UI;       //UI ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ï¿½ï¿½ï¿½ï¿½
-using TMPro;
+using UnityEditor;
+using System.Text;
+using STORYGAME;
 
-namespace STORYGAME //ï¿½Ì¸ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½
+#if UNITY_EDITOR
+public class GameSystemEditor : Editor
 {
-#if UNITY_EDITOR
-    [CustomEditor(typeof(GameSystem))]
-    public class GameSystemEditor : Editor              //ï¿½ï¿½ï¿½ï¿½Æ¼ ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+    public override void OnInspectorGUI()
     {
-        public override void OnInspectorGUI()               //ï¿½Î½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+        base.OnInspectorGUI();
+
+        GameSystem gameSystem = (GameSystem)target;
+
+        if(GUILayout.Button("Reset Story Models"))      //¿¡µðÅÍ¿¡¼­ ¹öÆ° »ý¼º 
         {
-            base.OnInspectorGUI();                          //ï¿½ï¿½ï¿½ï¿½ ï¿½Î½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ ï¿½ï¿½ï¿½ï¿½
-
-            GameSystem gameSystem = (GameSystem)target;     //ï¿½ï¿½ï¿½ï¿½ ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½ï¿½Å©ï¿½ï¿½Æ® Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
-
-            if (GUILayout.Button("Reset Stroy Models"))          //ï¿½ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
-            {
-                gameSystem.ResetStoryModels();
-            }
-
-            if (GUILayout.Button("Assing Text Component by Name"))          //ï¿½ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(UI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ò·ï¿½ï¿½Â´ï¿½)
-            {
-                //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ì¸ï¿½ï¿½ï¿½ï¿½ï¿½ Text ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® Ã£ï¿½ï¿½
-                GameObject textObject = GameObject.Find("StroyTextUI");
-                if (textObject != null)
-                {
-                    Text textComponent = textObject.GetComponent<Text>();
-                    if (textComponent != null)
-                    {
-                        //Text Component ï¿½Ò´ï¿½
-                        gameSystem.textComponent = textComponent;
-                        Debug.Log("Text Componet assigned Successfully");
-                    }
-
-
-                }
-            }
-
-
+            gameSystem.ResetStoryModels();
         }
     }
+
+}
+
 #endif
-    public class GameSystem : MonoBehaviour
+public class GameSystem : MonoBehaviour
+{
+    public StoryModel[] storyModels;                    //º¯°æµÈ ½ºÅä¸® ¸ðµ¨·Î »ý¼º
+
+    public static GameSystem instance;                  //°£´ÜÇÑ ½Ì±ÛÅæ È­
+
+    private void Awake()                                //SceneÀÌ »ý¼º µÉ¶§ ÄÚµå ¼³Á¤´Ü¿¡¼­ GameSystemÀ» ½Ì±ÛÅæÈ­ 
     {
-        public static GameSystem instance;              //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ì±ï¿½ï¿½ï¿½ È­
-        public Text textComponent = null;
+        instance = this;
+    }
 
-        public float delay = 0.1f;                      //ï¿½ï¿½ ï¿½ï¿½ï¿½Ú°ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½É¸ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½
-        public string fullText;                         //ï¿½ï¿½Ã¼ Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ®
-        public string currentText = "";                 //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ç¥ï¿½Ãµï¿½ ï¿½Ø½ï¿½Æ®
+    public enum GAMESTATE
+    {
+        STROYSHOW,
+        WAITSELECT,
+        STORYEND,
+        BATTLEMODE,
+        BATTLEDONE,
+        SHOPMODE,
+        ENDMODE
+    }
+    public Stats stats;
+    public GAMESTATE currentState;
 
-        public enum GAMESTATE                           //ï¿½ï¿½ï¿½Â°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    public int currentStoryIndex = 1;                                   //ÁøÇàµÇ°í ÀÖ´Â ½ºÅä¸® ¹øÈ£ 
+
+    public void ApplyChoice(StoryModel.Result result)                           //¹öÆ°À» ´©¸¥ °á°ú ¿¬»ê ÇÔ¼ö
+    {
+        switch (result.resultType)
         {
-            STORYSHOW,
-            WAITSELECT,
-            STROTYEND,
-            ENDMODE
+            case StoryModel.Result.ResultType.ChangeHp:                         //HP º¯µ¿ »çÇ× 
+                //stats.currentHpPoint += result.value;                         //Á÷Á¢ º¯°æÇÏ°Å³ª 
+                ChangeState(result);                                            //ÇÔ¼ö¸¦ ÅëÇØ¼­ º¯°æ
+                break;
+
+            case StoryModel.Result.ResultType.AddExperience:
+                ChangeState(result);
+                break;
+
+            case StoryModel.Result.ResultType.GoToNextStory:                    //´ÙÀ½ ½ºÅä¸® ÁøÇà
+                currentStoryIndex = result.value;                               //ÇöÀç ½ºÅä¸® ÀÎµ¦½º Ãß°¡
+                StoryShow(currentStoryIndex);                                   //ÇÔ¼ö¸¦ ÅëÇØ¼­ ½ºÅä¸® ½Ã½ºÅÛ Á¢±ÙÇÏ¿© ½ºÅä¸® ¿¬Ãâ ½ÃÀÛ 
+                break;
+            case StoryModel.Result.ResultType.GoToRandomStory:                  //·£´ý ½ºÅä¸® ÁøÇà
+                StoryModel temp = RandomStory();
+                StoryShow(temp.storyNumber);
+                break;
+        }
+    }
+    public void StoryShow(int number)                                           //½ºÅä¸®¸¦ º¸¿©ÁÖ´Â ÇÔ¼ö 
+    {
+        StoryModel tempStoryModel = FindStoryModel(number);
+
+        //StorySystem.Instance.currentStoryModel = tempStoryModels;
+        //StorySystem.Instance.CoShowText();
+    }
+
+
+    public void ChangeState(StoryModel.Result result)                           //°á°ú °ª¿¡ µû¸¥ ½ºÅÝ º¯°æ (°¢°¢ 1°³¾¿ ±¸Çö)
+    {
+        if (result.stats.hpPoint > 0) stats.hpPoint += result.stats.hpPoint;
+        if (result.stats.spPoint > 0) stats.spPoint += result.stats.spPoint;
+        if (result.stats.currentHpPoint > 0) stats.currentHpPoint += result.stats.currentHpPoint;
+        if (result.stats.currentSpPoint > 0) stats.currentSpPoint += result.stats.currentSpPoint;
+        if (result.stats.currentXpPoint > 0) stats.currentXpPoint += result.stats.currentXpPoint;
+        if (result.stats.strength > 0) stats.strength += result.stats.strength;
+        if (result.stats.dexterity > 0) stats.dexterity += result.stats.dexterity;
+        if (result.stats.consitiution > 0) stats.consitiution += result.stats.consitiution;
+        if (result.stats.wisdom > 0) stats.wisdom += result.stats.wisdom;
+        if (result.stats.Intelligence > 0) stats.Intelligence += result.stats.Intelligence;
+        if (result.stats.charisma > 0) stats.charisma += result.stats.charisma;
+    }
+
+    StoryModel RandomStory()               
+    {
+        StoryModel tempStoryModels = null;
+        List<StoryModel> StoryModelList = new List<StoryModel>();           //·£´ýÀ» µ¹¸®±â À§ÇÑ List »ý¼º
+
+        for (int i = 0; i < storyModels.Length; i++)            // for¹®À¸·Î ¹è¿­ ¾È¿¡ ÀÖ´Â ¼±¾ðÇÑ ¸ðµ¨ µ¥ÀÌÅÍ¿¡¼­ 
+        {
+            if (storyModels[i].storytype == StoryModel.STORYTYPE.MAIN)          //½ºÅä¸® Å¸ÀÔÀÌ Main ÀÎ °æ¿ì¿¡¸¸ ÇØ´ç List¿¡ Ãß°¡ 
+            {
+                StoryModelList.Add(storyModels[i]);
+            }
         }
 
-        public GAMESTATE currentState;
-        public StoryTableObject[] storyModels;          //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ ï¿½ðµ¨µï¿½ ï¿½Ò½ï¿½ï¿½Úµï¿½ ï¿½ï¿½Ä¡ ï¿½Ìµï¿½
-        public StoryTableObject currentModels;          //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ä¸® ï¿½ï¿½ ï¿½ï¿½Ã¼
-        public int currentStoryIndex;                   //ï¿½ï¿½ï¿½ä¸® ï¿½ï¿½ ï¿½Îµï¿½ï¿½ï¿½
-        public bool showStroy = false;
+        tempStoryModels = StoryModelList[Random.Range(0, StoryModelList.Count)];    //¼±º°ÇÑ ½ºÅä¸®µé Áß List ¼ýÀÚ ¸¸Å­ ·£´ý °ªÀ» µ¹·Á¼­ °¡Á®¿Â´Ù.
+        currentStoryIndex = tempStoryModels.storyNumber;
+        Debug.Log("currentStoryIndex " + currentStoryIndex);
 
+        return tempStoryModels;                               
+    }
 
+    StoryModel FindStoryModel(int number)               //StoryModelÀ» µÇµ¹·ÁÁÖ´Â ÇÔ¼ö ¹øÈ£·Î Ã£¾Æ¼­ ¸®ÅÏ 
+    {
+        StoryModel tempStoryModels = null;
 
-        private void Awake()
-        {
-            instance = this;
+        for (int i = 0; i < storyModels.Length; i++)            // for¹®À¸·Î ¹è¿­ ¾È¿¡ ÀÖ´Â ¼±¾ðÇÑ ¸ðµ¨ µ¥ÀÌÅÍ¿¡¼­ 
+        {                                                       // storyNumber °ªÀÌ ÀÏÄ¡ÇÒ °æ¿ì ÀÓÀÇ·Î ¼±¾ðÇÑ temp ¿¡ ³Ö¾î¼­
+            if (storyModels[i].storyNumber == number)
+            {
+                tempStoryModels = storyModels[i];
+                break;
+            }
         }
-
-        public void Start()                     //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û½ï¿½
-        {
-            StartCoroutine(ShowText());         //ï¿½Ø½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø´ï¿½.
-        }
-
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Q)) StoryShow(1);
-            if (Input.GetKeyDown(KeyCode.W)) StoryShow(2);
-            if (Input.GetKeyDown(KeyCode.E)) StoryShow(3);
-
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-
-                currentText = currentModels.storyText;
-                textComponent.text = currentText;
-                StopCoroutine(ShowText());
-                showStroy = false;
-
-
-
-
-            }
-
-
-            if(Input.GetKeyDown(KeyCode.Space))
-            {
-                delay = 0.0f;
-            }
-
-
-
-        }    
-
-        public void StoryShow(int number)
-        {
-            if(!showStroy)
-            {
-
-                currentModels = FindStoryModel(number);
-                delay = 0.1f;
-                StartCoroutine(ShowText());
-
-
-            }
-
-          
-
-
-        }
-      
-
-
-
-
-
-
-        StoryTableObject FindStoryModel(int number)
-       {
-            StoryTableObject tempsStoryModels = null;
-            for(int i=0; i< storyModels.Length; i++)
-            {
-                if (storyModels[i].storyNumber == number)
-                {
-                    tempsStoryModels = storyModels[i];
-                    break;
-
-                }
-
-            }
-            return tempsStoryModels;
-        }
-        IEnumerator ShowText()
-        {
-            showStroy = true;
-            for (int i = 0; i <= currentModels.storyText.Length; i++)
-            {
-                currentText = currentModels.storyText.Substring(0, i);
-                textComponent.text = currentText;
-                yield return new WaitForSeconds(delay);
-            }
-
-            yield return new WaitForSeconds(delay);
-            showStroy = false;
-        }   
+        return tempStoryModels;                                 //return ½ÃÅ²´Ù. 
+    }
 
 #if UNITY_EDITOR
-        [ContextMenu("Reset Stroy Models")]
-
-        public void ResetStoryModels()
-        {
-            storyModels = Resources.LoadAll<StoryTableObject>("");// Resources ï¿½ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ ï¿½ï¿½ï¿½ StroyModel ï¿½Ò·ï¿½ ï¿½ï¿½ï¿½ï¿½
-        }
-#endif
+    [ContextMenu("Reset Story Models")]
+    public void ResetStoryModels()
+    {
+        storyModels = Resources.LoadAll<StoryModel>(""); // Resources Æú´õ ¾Æ·¡ ¸ðµç StoryModel ºÒ·¯¿À±â 
     }
+#endif
 }

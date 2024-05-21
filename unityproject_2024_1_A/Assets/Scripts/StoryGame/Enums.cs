@@ -1,19 +1,19 @@
-ï»¿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace STORYGAME //ï¿½Ì¸ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½
+namespace STORYGAME //ÀÌ¸§ Ãæµ¹ ¹æÁö
 {
-    public class Enums      //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ 
+    public class Enums      //¿­°ÅÇü Å¸ÀÔ 
     {
-        public enum StoryType      //ï¿½ï¿½ï¿½ä¸® Å¸ï¿½ï¿½
+        public enum StoryType      //½ºÅä¸® Å¸ÀÔ
         {
             MAIN,
             SUB,
             SERIAL
         }
 
-        public enum EvenType        //ï¿½Ìºï¿½Æ® ï¿½ß»ï¿½ï¿½ï¿½ Ã¼Å©
+        public enum EvenType        //ÀÌº¥Æ® ¹ß»ý½Ã Ã¼Å©
         {
             NONE,
             GoToBattle = 100,
@@ -25,7 +25,7 @@ namespace STORYGAME //ï¿½Ì¸ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½
             CheckCHA
         }
 
-        public enum ResultType       //ï¿½Ìºï¿½Æ® ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+        public enum ResultType       //ÀÌº¥Æ® °á°ú ¿­°Å
         {
             ChangeHp,
             ChangeSp,
@@ -40,7 +40,7 @@ namespace STORYGAME //ï¿½Ì¸ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½
     [System.Serializable]
     public class Stats
     {
-        //Ã¼ï¿½Â°ï¿½ ï¿½ï¿½ï¿½Å·ï¿½
+        //Ã¼·Â°ú Á¤½Å·Â
         public int hpPoint;
         public int spPoint;
 
@@ -48,7 +48,7 @@ namespace STORYGAME //ï¿½Ì¸ï¿½ ï¿½æµ¹ ï¿½ï¿½ï¿½ï¿½
         public int currentSpPoint;
         public int currentXpPoint;
 
-        //ï¿½âº» ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (D&D)
+        //±âº» ½ºÅÝ ¼³Á¤ (D&D)
         public int strength;        //STR
         public int dexterity;       //DEX
         public int consitiution;    //CON
